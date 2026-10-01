@@ -1,0 +1,306 @@
+"use client";
+
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { PortfolioData } from "@/types/portfolio";
+
+const LOCAL_STORAGE_KEY = "portfolio_site_data_v1";
+
+const defaultSeedData: PortfolioData = {
+  hero: {
+    name: "Alex Morgan",
+    title: "Full-Stack Software Engineer & UI/UX Specialist",
+    subtitle: "Building modern, intuitive, and high-performance web applications with cutting-edge technologies.",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+    status: "Available for Work & Freelance",
+    resumeUrl: "#",
+    github: "https://github.com",
+    linkedin: "https://linkedin.com",
+    twitter: "https://twitter.com",
+    email: "alex.morgan@example.com"
+  },
+  about: {
+    bio: "I am a passionate Full-Stack Software Engineer with over 4 years of experience building modern web applications, scalable APIs, and visually engaging digital products. I specialize in React, Next.js, TypeScript, Node.js, and modern CSS design systems.",
+    stats: [
+      { label: "Years Experience", value: "4+" },
+      { label: "Projects Completed", value: "35+" },
+      { label: "Satisfied Clients", value: "20+" },
+      { label: "Certifications", value: "8" }
+    ],
+    highlights: [
+      "Expertise in modern frontend frameworks & state management",
+      "Robust RESTful & GraphQL API design with Node.js / Python",
+      "Pixel-perfect responsive design & glassmorphism aesthetics",
+      "Performance optimization & accessibility standards"
+    ]
+  },
+  skills: [
+    {
+      category: "Frontend",
+      items: [
+        { name: "React / Next.js", level: "Expert" },
+        { name: "TypeScript / JavaScript", level: "Expert" },
+        { name: "Tailwind CSS & CSS3", level: "Expert" },
+        { name: "HTML5 / Web APIs", level: "Expert" },
+        { name: "State Management (Redux / Zustand)", level: "Advanced" }
+      ]
+    },
+    {
+      category: "Backend & Database",
+      items: [
+        { name: "Node.js / Express", level: "Advanced" },
+        { name: "PostgreSQL / Prisma", level: "Advanced" },
+        { name: "MongoDB / Mongoose", level: "Advanced" },
+        { name: "RESTful & GraphQL APIs", level: "Advanced" }
+      ]
+    },
+    {
+      category: "Tools & DevOps",
+      items: [
+        { name: "Git / GitHub Actions", level: "Advanced" },
+        { name: "Docker & Cloud Deployments", level: "Intermediate" },
+        { name: "Vercel & Netlify", level: "Expert" },
+        { name: "Figma / UI Design", level: "Advanced" }
+      ]
+    }
+  ],
+  projects: [
+    {
+      id: "proj-1",
+      title: "AI Content Studio Platform",
+      description: "An AI-powered dashboard enabling creators to generate blog posts, social media content, and high-quality graphics with built-in analytics.",
+      image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+      category: "Full-Stack",
+      tags: ["Next.js", "TypeScript", "Tailwind CSS", "OpenAI API", "Prisma"],
+      liveUrl: "https://example.com/demo1",
+      githubUrl: "https://github.com/example/ai-studio",
+      featured: true
+    },
+    {
+      id: "proj-2",
+      title: "Nexus E-Commerce Engine",
+      description: "High-speed storefront with real-time inventory management, Stripe payment processing, and interactive product visualizers.",
+      image: "https://images.unsplash.com/photo-1556742049-0a67daf64f42?auto=format&fit=crop&w=800&q=80",
+      category: "E-Commerce",
+      tags: ["React", "Node.js", "MongoDB", "Stripe", "Redux"],
+      liveUrl: "https://example.com/demo2",
+      githubUrl: "https://github.com/example/nexus-shop",
+      featured: true
+    },
+    {
+      id: "proj-3",
+      title: "CyberPulse Analytics Suite",
+      description: "Real-time network security monitoring system with live data charts, incident alerts, and customizable telemetry widgets.",
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+      category: "Dashboard",
+      tags: ["Next.js", "Chart.js", "Tailwind CSS", "WebSockets"],
+      liveUrl: "https://example.com/demo3",
+      githubUrl: "https://github.com/example/cyberpulse",
+      featured: false
+    }
+  ],
+  experience: [
+    {
+      id: "exp-1",
+      role: "Senior Frontend Developer",
+      company: "Apex Digital Solutions",
+      location: "San Francisco, CA",
+      period: "2023 - Present",
+      description: "Led frontend development for flagship enterprise SaaS web applications. Managed a team of 4 engineers and improved web vitals performance by 40%."
+    },
+    {
+      id: "exp-2",
+      role: "Full-Stack Software Engineer",
+      company: "Vortex Tech Labs",
+      location: "Austin, TX",
+      period: "2021 - 2023",
+      description: "Developed microservices with Node.js and constructed dynamic dashboards with React and Tailwind CSS. Integrated Stripe and auth OAuth pipelines."
+    },
+    {
+      id: "exp-3",
+      role: "Junior Web Developer",
+      company: "Creative Code Agency",
+      location: "Remote",
+      period: "2020 - 2021",
+      description: "Built responsive landing pages, custom WordPress themes, and interactive web tools for international clients."
+    }
+  ],
+  education: [
+    {
+      id: "edu-1",
+      degree: "B.S. in Computer Science",
+      institution: "University of Technology",
+      period: "2016 - 2020",
+      grade: "3.8 / 4.0 GPA",
+      details: "Focused on Software Architecture, Data Structures, Algorithms, and Web Systems."
+    },
+    {
+      id: "edu-2",
+      degree: "Full Stack Web Development Bootcamp",
+      institution: "Tech Academy",
+      period: "2020",
+      grade: "Completed with Distinction",
+      details: "Intensive hands-on training in MERN stack development and agile software workflows."
+    }
+  ],
+  certificates: [
+    {
+      id: "cert-1",
+      title: "AWS Certified Solutions Architect - Associate",
+      issuer: "Amazon Web Services",
+      date: "2023",
+      credentialUrl: "https://aws.amazon.com/verification",
+      badge: "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=400&q=80"
+    },
+    {
+      id: "cert-2",
+      title: "Meta Front-End Developer Professional Certificate",
+      issuer: "Meta / Coursera",
+      date: "2022",
+      credentialUrl: "https://coursera.org/verify",
+      badge: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80"
+    },
+    {
+      id: "cert-3",
+      title: "MongoDB Certified Developer Associate",
+      issuer: "MongoDB University",
+      date: "2022",
+      credentialUrl: "https://university.mongodb.com",
+      badge: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=400&q=80"
+    }
+  ],
+  contact: {
+    email: "alex.morgan@example.com",
+    phone: "+1 (555) 234-5678",
+    location: "San Francisco, CA (Open to Remote)",
+    availability: "Available for immediate opportunities",
+    socials: {
+      github: "https://github.com",
+      linkedin: "https://linkedin.com",
+      twitter: "https://twitter.com"
+    }
+  },
+  adminPasscode: "admin123"
+};
+
+interface PortfolioContextType {
+  data: PortfolioData;
+  isLoading: boolean;
+  isAdminOpen: boolean;
+  setIsAdminOpen: (open: boolean) => void;
+  isAuthenticated: boolean;
+  setIsAuthenticated: (auth: boolean) => void;
+  toastMessage: string | null;
+  setToastMessage: (msg: string | null) => void;
+  updateData: (newData: PortfolioData) => Promise<boolean>;
+  resetToDefaultData: () => Promise<boolean>;
+}
+
+const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
+
+export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [data, setData] = useState<PortfolioData>(defaultSeedData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Auto-clear toast message
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
+
+  // Load initial data from API endpoint or localStorage
+  useEffect(() => {
+    async function loadPortfolioData() {
+      try {
+        const res = await fetch("/api/portfolio-data");
+        if (res.ok) {
+          const apiData = await res.json();
+          if (apiData && apiData.hero) {
+            setData(apiData);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(apiData));
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch API portfolio data, falling back to localStorage:", err);
+      }
+
+      // Fallback to localStorage
+      try {
+        const local = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (parsed && parsed.hero) {
+            setData(parsed);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not parse localStorage portfolio data:", err);
+      }
+      setIsLoading(false);
+    }
+
+    loadPortfolioData();
+  }, []);
+
+  const updateData = async (newData: PortfolioData): Promise<boolean> => {
+    try {
+      setData(newData);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newData));
+
+      // Post to server file API
+      const res = await fetch("/api/portfolio-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newData)
+      });
+
+      if (!res.ok) {
+        console.warn("Server save failed, kept local state.");
+      }
+
+      setToastMessage("Portfolio changes saved successfully!");
+      return true;
+    } catch (err) {
+      console.error("Save error:", err);
+      setToastMessage("Saved to browser storage!");
+      return true;
+    }
+  };
+
+  const resetToDefaultData = async (): Promise<boolean> => {
+    return await updateData(defaultSeedData);
+  };
+
+  return (
+    <PortfolioContext.Provider
+      value={{
+        data,
+        isLoading,
+        isAdminOpen,
+        setIsAdminOpen,
+        isAuthenticated,
+        setIsAuthenticated,
+        toastMessage,
+        setToastMessage,
+        updateData,
+        resetToDefaultData
+      }}
+    >
+      {children}
+    </PortfolioContext.Provider>
+  );
+};
+
+export const usePortfolio = () => {
+  const context = useContext(PortfolioContext);
+  if (!context) {
+    throw new Error("usePortfolio must be used within a PortfolioProvider");
+  }
+  return context;
+};
